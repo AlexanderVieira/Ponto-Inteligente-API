@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -16,7 +17,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import br.com.alex.pontointeligente.api.enums.PerfilEnum;
 import lombok.Data;
@@ -41,7 +45,7 @@ public class Funcionario implements Serializable {
 	@Column(name = "email", nullable = false)
 	private String email;
 
-	@Column(name = "senha", nullable = false)
+	// @Column(name = "senha", nullable = false)
 	private String senha;
 
 	@Column(name = "cpf", nullable = false)
@@ -71,5 +75,32 @@ public class Funcionario implements Serializable {
 
 	@OneToMany(mappedBy = "funcionario", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<Lancamento> lancamento;
+
+	@Transient
+	public Optional<BigDecimal> getValorHoraOpt() {
+		return Optional.ofNullable(valorHora);
+	}
+
+	@Transient
+	public Optional<Float> getQtdHorasTrabalhoDiaOpt() {
+		return Optional.ofNullable(qtdHorasTrabalhoDia);
+	}
+
+	@Transient
+	public Optional<Float> getQtdHorasAlmocoOpt() {
+		return Optional.ofNullable(qtdHorasAlmoco);
+	}
+
+	@PreUpdate
+	public void preUpdate() {
+		dataAtualizacao = new Date();
+	}
+
+	@PrePersist
+	public void prePersist() {
+		final Date atual = new Date();
+		dataCriacao = atual;
+		dataAtualizacao = atual;
+	}
 
 }
